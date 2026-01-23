@@ -1,0 +1,2 @@
+x = int("7")
+print(x)
