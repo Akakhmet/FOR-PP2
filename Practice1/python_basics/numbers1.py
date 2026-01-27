@@ -1,16 +1,16 @@
 # example 1
-print(10 + 5)
+print(15 - 5)
 
 # example 2
-print(10 / 3)
+print(12 / 4)
 
 # example 3
-x = 2.5
-print(x * 2)
+x = 3.5
+print(x + 1.5)
 
 # example 4
-z = 1j
+z = 2j
 print(type(z))
 
 # example 5
-print(round(3.7))
+print(round(4.6))

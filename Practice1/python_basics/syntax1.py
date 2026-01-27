@@ -1,19 +1,19 @@
 # example 1
-if 10 > 5:
-    print("true")
+if 3 < 5:
+    print("ok")
 
 # example 2
-x = 5
-if x == 5:
-    print("x is five")
+x = 8
+if x > 5:
+    print(x)
 
 # example 3
-for i in range(2):
+for i in range(1, 4):
     print(i)
 
 # example 4
-a = 3
-b = 4
+a = 2
+b = 3
 print(a ** b)
 
 # example 5

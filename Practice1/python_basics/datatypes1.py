@@ -1,20 +1,19 @@
 # example 1
-x = 10
+x = 12
 print(type(x))
 
 # example 2
-y = 3.14
+y = 6.7
 print(type(y))
 
 # example 3
-text = "hello"
+text = "data"
 print(type(text))
 
 # example 4
-flag = False
+flag = True
 print(type(flag))
 
 # example 5
-nums = (1, 2, 3)
-print(type(nums))
-
+items = [1, 2, 3]
+print(type(items))
