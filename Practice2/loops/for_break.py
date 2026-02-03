@@ -1,6 +1,0 @@
-
-for i in range(1, 21):
-    if i == 13:
-        print("Unlucky number found!")
-        break
-    print(i)
