@@ -9,6 +9,7 @@ Each folder is a separate practice module with topics, code files, and small dem
 
 - Practice2 — Boolean, If/Else, Loops
 - Practice-03 — Functions, Lambda, Classes, Inheritance
+- сакеса
 
 ---
 
