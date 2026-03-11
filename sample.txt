@@ -1,0 +1,5 @@
+ID: 1 Name: Alice Age: 20 Score: 88
+ID: 2 Name: Bob Age: 21 Score: 75
+ID: 3 Name: Charlie Age: 19 Score: 92
+ID: 4 Name: Diana Age: 22 Score: 85
+ID: 5 Name: Ethan Age: 20 Score: 78
