@@ -86,7 +86,7 @@ def main_menu():
     """Main terminal interface."""
     while True:
         print("\n===== PhoneBook Application =====")
-        print("1. Import contacts from CSV")
+        print("1. Import contacts from  CSV")
         print("2. Add new contact (Manual)")
         print("3. Update contact phone")
         print("4. Search contacts (Filter)")
