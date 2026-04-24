@@ -2,8 +2,8 @@ from pathlib import Path
 import pygame
 from player import MusicPlayer
 
-SCREEN_WIDTH = 760
-SCREEN_HEIGHT = 280
+SCREEN_WIDTH = 850
+SCREEN_HEIGHT = 320
 BACKGROUND_COLOR = (30, 30, 30)
 TEXT_COLOR = (240, 240, 240)
 ACCENT_COLOR = (100, 200, 255)
