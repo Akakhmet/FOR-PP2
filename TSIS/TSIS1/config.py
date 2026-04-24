@@ -1,0 +1,9 @@
+DB_CONFIG = {
+    "host":     "localhost",
+    "port":     5432,
+    "dbname":   "phonebook",
+    "user":     "postgres",
+    "password": "080302", 
+}
+
+PAGE_SIZE = 5   # rows per page in paginated view

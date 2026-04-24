@@ -1,254 +1,320 @@
-
 """
-Practice 10 - Snake
-
-This project extends a simple lecture-style snake game and adds:
-- Border / wall collision checking
-- Food generation that avoids walls and the snake body
-- Levels based on score
-- Faster speed on each new level
-- Score and level counters
-- Code comments
+Snake Game — Pygame Extended Version
+=====================================
+Features:
+  1. Wall (border) collision detection
+  2. Random food placement (avoids walls and snake body)
+  3. Levels system (every FOOD_PER_LEVEL foods eaten → next level)
+  4. Speed increases each level
+  5. Score and level counter displayed on screen
+  6. Code is fully commented
 """
 
+import pygame
 import random
 import sys
 
-import pygame
-
+# ── Initialize Pygame ─────────────────────────────────────────────
 pygame.init()
 
-# Window and board settings
-CELL_SIZE = 20
-COLUMNS = 30
-ROWS = 30
-HUD_HEIGHT = 60
-WIDTH = CELL_SIZE * COLUMNS
-HEIGHT = CELL_SIZE * ROWS + HUD_HEIGHT
+# ── Constants ────────────────────────────────────────────────────
+CELL_SIZE      = 20          # size of one grid cell in pixels
+COLS           = 30          # number of columns in the grid
+ROWS           = 25          # number of rows in the grid
+WIDTH          = COLS * CELL_SIZE   # window width  (600px)
+HEIGHT         = ROWS * CELL_SIZE   # window height (500px)
+HUD_HEIGHT     = 40          # extra space at top for score/level display
 
-# Colors
-BLACK = (0, 0, 0)
-WHITE = (255, 255, 255)
-GREEN = (0, 180, 0)
-DARK_GREEN = (0, 100, 0)
-RED = (220, 0, 0)
-GRAY = (70, 70, 70)
-YELLOW = (255, 220, 0)
+FOOD_PER_LEVEL = 3           # foods to eat before levelling up
+BASE_FPS       = 8           # starting speed (frames per second)
+FPS_STEP       = 2           # FPS added each level
+MAX_FPS        = 30          # speed cap
 
-# Display
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
+# ── Colours ──────────────────────────────────────────────────────
+BLACK      = (  0,   0,   0)
+DARK_GREEN = ( 20,  60,  20)
+GREEN      = ( 50, 200,  50)
+BRIGHT_GRN = (100, 255, 100)
+RED        = (220,  50,  50)
+WHITE      = (255, 255, 255)
+GRAY       = (100, 100, 100)
+YELLOW     = (255, 215,   0)
+WALL_COLOR = ( 40,  40,  40)
+
+# ── Display setup ────────────────────────────────────────────────
+screen = pygame.display.set_mode((WIDTH, HEIGHT + HUD_HEIGHT))
 pygame.display.set_caption("Snake")
+
 clock = pygame.time.Clock()
 
-# Fonts
-hud_font = pygame.font.SysFont("Verdana", 22)
-game_over_font = pygame.font.SysFont("Verdana", 48)
-
-# Snake settings
-snake = [(10, 10), (9, 10), (8, 10)]
-direction = (1, 0)
-next_direction = (1, 0)
-
-# Progress values
-score = 0
-level = 1
-foods_eaten = 0
-base_speed = 8
-
-# Food position
-food = None
+# ── Fonts ────────────────────────────────────────────────────────
+font_hud   = pygame.font.SysFont("Courier New", 20, bold=True)
+font_big   = pygame.font.SysFont("Courier New", 42, bold=True)
+font_small = pygame.font.SysFont("Courier New", 22)
 
 
-def get_walls(current_level):
+# ─────────────────────────────────────────────────────────────────
+# Helper: draw a single grid cell
+# ─────────────────────────────────────────────────────────────────
+def draw_cell(surface, col, row, color, margin=1):
+    """Draw a filled rectangle for one grid cell with an optional margin."""
+    rect = pygame.Rect(
+        col * CELL_SIZE + margin,
+        row * CELL_SIZE + margin + HUD_HEIGHT,
+        CELL_SIZE - margin * 2,
+        CELL_SIZE - margin * 2,
+    )
+    pygame.draw.rect(surface, color, rect, border_radius=3)
+
+
+# ─────────────────────────────────────────────────────────────────
+# Helper: draw the border walls
+# ─────────────────────────────────────────────────────────────────
+def draw_walls(surface):
     """
-    Build the wall set.
-    Border walls always exist.
-    Higher levels add simple inner obstacles.
+    Draw the outer wall ring around the playable area.
+    The wall occupies column 0, column COLS-1, row 0, and row ROWS-1.
     """
-    walls = set()
-
-    # Border walls
-    for x in range(COLUMNS):
-        walls.add((x, 0))
-        walls.add((x, ROWS - 1))
-
-    for y in range(ROWS):
-        walls.add((0, y))
-        walls.add((COLUMNS - 1, y))
-
-    # Additional walls for higher levels
-    if current_level >= 2:
-        for y in range(6, 24):
-            walls.add((15, y))
-
-    if current_level >= 3:
-        for x in range(7, 23):
-            walls.add((x, 15))
-
-    if current_level >= 4:
-        for y in range(5, 11):
-            walls.add((7, y))
-            walls.add((22, y))
-        for y in range(19, 25):
-            walls.add((7, y))
-            walls.add((22, y))
-
-    return walls
+    for col in range(COLS):
+        draw_cell(surface, col, 0,        WALL_COLOR, margin=0)   # top row
+        draw_cell(surface, col, ROWS - 1, WALL_COLOR, margin=0)   # bottom row
+    for row in range(1, ROWS - 1):
+        draw_cell(surface, 0,        row, WALL_COLOR, margin=0)   # left col
+        draw_cell(surface, COLS - 1, row, WALL_COLOR, margin=0)   # right col
 
 
-def generate_food():
+# ─────────────────────────────────────────────────────────────────
+# Helper: draw HUD (score, level, speed)
+# ─────────────────────────────────────────────────────────────────
+def draw_hud(surface, score, level, fps):
+    """Render score, level, and current speed in the top bar."""
+    # Background bar
+    pygame.draw.rect(surface, (15, 15, 15), (0, 0, WIDTH, HUD_HEIGHT))
+    pygame.draw.line(surface, DARK_GREEN, (0, HUD_HEIGHT - 1), (WIDTH, HUD_HEIGHT - 1), 1)
+
+    score_surf = font_hud.render(f"SCORE: {score}", True, GREEN)
+    level_surf = font_hud.render(f"LEVEL: {level}", True, YELLOW)
+    speed_surf = font_hud.render(f"SPEED: {fps} FPS", True, GRAY)
+
+    surface.blit(score_surf, (14, 10))
+    surface.blit(level_surf, (WIDTH // 2 - level_surf.get_width() // 2, 10))
+    surface.blit(speed_surf, (WIDTH - speed_surf.get_width() - 14, 10))
+
+
+# ─────────────────────────────────────────────────────────────────
+# Helper: random food position
+# ─────────────────────────────────────────────────────────────────
+def random_food(snake_body):
     """
-    Generate food in a random cell that is not on a wall
-    and not on the snake body.
+    Choose a random grid cell for the food that:
+      - Is NOT on the wall border (row/col 0 or max)
+      - Is NOT occupied by any snake segment
+    Retries until a valid cell is found.
     """
-    walls = get_walls(level)
-    free_cells = []
-
-    for x in range(1, COLUMNS - 1):
-        for y in range(1, ROWS - 1):
-            position = (x, y)
-            if position not in walls and position not in snake:
-                free_cells.append(position)
-
-    return random.choice(free_cells)
+    snake_set = set(snake_body)   # O(1) lookup
+    while True:
+        col = random.randint(1, COLS - 2)   # 1 .. COLS-2 (inside walls)
+        row = random.randint(1, ROWS - 2)   # 1 .. ROWS-2
+        if (col, row) not in snake_set:
+            return (col, row)
 
 
-def draw_cell(position, color):
-    """Draw one board cell."""
-    x, y = position
-    rect = pygame.Rect(x * CELL_SIZE, y * CELL_SIZE + HUD_HEIGHT, CELL_SIZE, CELL_SIZE)
-    pygame.draw.rect(screen, color, rect)
+# ─────────────────────────────────────────────────────────────────
+# Helper: centered text overlay
+# ─────────────────────────────────────────────────────────────────
+def draw_overlay(surface, title, subtitle=""):
+    """Draw a semi-transparent overlay with a title and subtitle."""
+    overlay = pygame.Surface((WIDTH, HEIGHT + HUD_HEIGHT), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, 160))
+    surface.blit(overlay, (0, 0))
+
+    title_surf = font_big.render(title, True, GREEN)
+    surface.blit(title_surf, (
+        WIDTH // 2 - title_surf.get_width() // 2,
+        (HEIGHT + HUD_HEIGHT) // 2 - 50,
+    ))
+
+    if subtitle:
+        sub_surf = font_small.render(subtitle, True, WHITE)
+        surface.blit(sub_surf, (
+            WIDTH // 2 - sub_surf.get_width() // 2,
+            (HEIGHT + HUD_HEIGHT) // 2 + 10,
+        ))
 
 
-def draw_board():
-    """Draw HUD, walls, snake, and food."""
-    screen.fill(BLACK)
+# ─────────────────────────────────────────────────────────────────
+# Main game function
+# ─────────────────────────────────────────────────────────────────
+def main():
+    # ── Game state variables ──────────────────────────────────────
+    # Snake is a list of (col, row) tuples; index 0 = head
+    snake      = [(COLS // 2, ROWS // 2),
+                  (COLS // 2 - 1, ROWS // 2),
+                  (COLS // 2 - 2, ROWS // 2)]
 
-    # HUD area
-    pygame.draw.rect(screen, GRAY, (0, 0, WIDTH, HUD_HEIGHT))
-    score_text = hud_font.render(f"Score: {score}", True, WHITE)
-    level_text = hud_font.render(f"Level: {level}", True, WHITE)
-    speed_text = hud_font.render(f"Speed: {base_speed + level - 1}", True, WHITE)
-    screen.blit(score_text, (15, 15))
-    screen.blit(level_text, (170, 15))
-    screen.blit(speed_text, (300, 15))
+    direction  = (1, 0)        # current movement direction (dx, dy)
+    next_dir   = (1, 0)        # buffered next direction (applied each frame)
 
-    # Draw walls
-    for wall in get_walls(level):
-        draw_cell(wall, GRAY)
+    food       = random_food(snake)
 
-    # Draw food
-    draw_cell(food, YELLOW)
+    score      = 0
+    level      = 1
+    food_eaten = 0             # counter resets each level
+    current_fps = BASE_FPS     # current game speed
 
-    # Draw snake
-    for index, part in enumerate(snake):
-        color = GREEN if index == 0 else DARK_GREEN
-        draw_cell(part, color)
+    state      = "START"       # game states: START | RUNNING | PAUSED | DEAD
 
+    # ── Main loop ─────────────────────────────────────────────────
+    while True:
 
-def change_level_if_needed():
-    """
-    Increase level each time the user eats 4 foods.
-    Each new level also increases game speed.
-    """
-    global level
-    level = 1 + score // 4
+        # ── Event handling ────────────────────────────────────────
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
 
+            if event.type == pygame.KEYDOWN:
 
-def handle_direction(event_key):
-    """Change direction, but prevent a direct turn into the snake's own body."""
-    global next_direction
+                # Start / restart / unpause on SPACE or ENTER
+                if event.key in (pygame.K_SPACE, pygame.K_RETURN):
+                    if state in ("START", "DEAD"):
+                        # Full reset
+                        snake       = [(COLS // 2, ROWS // 2),
+                                       (COLS // 2 - 1, ROWS // 2),
+                                       (COLS // 2 - 2, ROWS // 2)]
+                        direction   = (1, 0)
+                        next_dir    = (1, 0)
+                        food        = random_food(snake)
+                        score       = 0
+                        level       = 1
+                        food_eaten  = 0
+                        current_fps = BASE_FPS
+                        state       = "RUNNING"
+                    elif state == "PAUSED":
+                        state = "RUNNING"
 
-    if event_key == pygame.K_UP and direction != (0, 1):
-        next_direction = (0, -1)
-    elif event_key == pygame.K_DOWN and direction != (0, -1):
-        next_direction = (0, 1)
-    elif event_key == pygame.K_LEFT and direction != (1, 0):
-        next_direction = (-1, 0)
-    elif event_key == pygame.K_RIGHT and direction != (-1, 0):
-        next_direction = (1, 0)
+                # Pause / unpause on P
+                elif event.key == pygame.K_p:
+                    if state == "RUNNING":
+                        state = "PAUSED"
+                    elif state == "PAUSED":
+                        state = "RUNNING"
 
+                # ── Direction input (Arrow keys + WASD) ──────────
+                # Rule: cannot reverse direction 180° in one move
+                elif event.key in (pygame.K_UP, pygame.K_w):
+                    if direction != (0, 1):     # not currently moving down
+                        next_dir = (0, -1)
+                elif event.key in (pygame.K_DOWN, pygame.K_s):
+                    if direction != (0, -1):    # not currently moving up
+                        next_dir = (0, 1)
+                elif event.key in (pygame.K_LEFT, pygame.K_a):
+                    if direction != (1, 0):     # not currently moving right
+                        next_dir = (-1, 0)
+                elif event.key in (pygame.K_RIGHT, pygame.K_d):
+                    if direction != (-1, 0):    # not currently moving left
+                        next_dir = (1, 0)
 
-def move_snake():
-    """
-    Move the snake and return False if the snake hits a wall,
-    goes outside the playing area, or touches itself.
-    """
-    global direction, score, foods_eaten, food
+        # ── Game logic (only when RUNNING) ───────────────────────
+        if state == "RUNNING":
 
-    direction = next_direction
-    head_x, head_y = snake[0]
-    dx, dy = direction
-    new_head = (head_x + dx, head_y + dy)
+            # Apply buffered direction
+            direction = next_dir
 
-    # Collision with the outside of the playing area
-    if new_head[0] < 0 or new_head[0] >= COLUMNS or new_head[1] < 0 or new_head[1] >= ROWS:
-        return False
+            # Calculate new head position
+            head     = snake[0]
+            new_head = (head[0] + direction[0], head[1] + direction[1])
 
-    # Collision with walls
-    if new_head in get_walls(level):
-        return False
+            # ── 1. Wall collision check ───────────────────────────
+            # If head lands on the outer border → game over
+            col, row = new_head
+            if col <= 0 or col >= COLS - 1 or row <= 0 or row >= ROWS - 1:
+                state = "DEAD"
 
-    # Collision with the snake body
-    if new_head in snake:
-        return False
+            # ── 2. Self-collision check ───────────────────────────
+            elif new_head in snake:
+                state = "DEAD"
 
-    snake.insert(0, new_head)
-
-    # Eat food
-    if new_head == food:
-        score += 1
-        foods_eaten += 1
-        change_level_if_needed()
-        food = generate_food()
-    else:
-        snake.pop()
-
-    return True
-
-
-def show_game_over():
-    """Display the game-over screen."""
-    screen.fill(BLACK)
-    text1 = game_over_font.render("Game Over", True, RED)
-    text2 = hud_font.render(f"Final score: {score}", True, WHITE)
-    text3 = hud_font.render(f"Level reached: {level}", True, WHITE)
-
-    screen.blit(text1, (WIDTH // 2 - text1.get_width() // 2, HEIGHT // 2 - 70))
-    screen.blit(text2, (WIDTH // 2 - text2.get_width() // 2, HEIGHT // 2 + 5))
-    screen.blit(text3, (WIDTH // 2 - text3.get_width() // 2, HEIGHT // 2 + 35))
-    pygame.display.flip()
-    pygame.time.wait(2000)
-
-
-# Generate the first food position
-food = generate_food()
-
-# Main game loop
-running = True
-alive = True
-
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                running = False
             else:
-                handle_direction(event.key)
+                # Move snake: insert new head at front
+                snake.insert(0, new_head)
 
-    if alive:
-        alive = move_snake()
-        draw_board()
+                # ── 3. Food check ─────────────────────────────────
+                if new_head == food:
+                    # Snake grows: do NOT pop the tail
+                    food_eaten += 1
+                    score      += 10 * level   # bonus scales with level
+
+                    # ── 4. Level-up check ─────────────────────────
+                    if food_eaten >= FOOD_PER_LEVEL:
+                        level      += 1
+                        food_eaten  = 0
+                        # Increase speed, but cap at MAX_FPS
+                        current_fps = min(MAX_FPS, BASE_FPS + (level - 1) * FPS_STEP)
+
+                    # Place new food (avoids walls and the now-longer snake)
+                    food = random_food(snake)
+
+                else:
+                    # No food eaten: remove tail so snake stays same length
+                    snake.pop()
+
+        # ── Drawing ───────────────────────────────────────────────
+        screen.fill(BLACK)
+
+        # Background grid dots
+        for c in range(1, COLS - 1):
+            for r in range(1, ROWS - 1):
+                pygame.draw.rect(
+                    screen, (18, 18, 18),
+                    (c * CELL_SIZE + CELL_SIZE // 2 - 1,
+                     r * CELL_SIZE + CELL_SIZE // 2 - 1 + HUD_HEIGHT,
+                     2, 2)
+                )
+
+        # Walls
+        draw_walls(screen)
+
+        # Food — bright red circle
+        food_cx = food[0] * CELL_SIZE + CELL_SIZE // 2
+        food_cy = food[1] * CELL_SIZE + CELL_SIZE // 2 + HUD_HEIGHT
+        pygame.draw.circle(screen, RED, (food_cx, food_cy), CELL_SIZE // 2 - 2)
+        # Highlight dot on food
+        pygame.draw.circle(screen, (255, 150, 150),
+                           (food_cx - 3, food_cy - 3), 3)
+
+        # Snake segments
+        for idx, (c, r) in enumerate(snake):
+            if idx == 0:
+                # Head — brightest colour
+                color = BRIGHT_GRN
+            else:
+                # Body — gradually darker toward tail
+                fade  = max(0, 1.0 - idx / len(snake) * 0.75)
+                color = (int(50 * fade), int(200 * fade), int(50 * fade))
+            draw_cell(screen, c, r, color)
+
+        # HUD
+        draw_hud(screen, score, level, current_fps)
+
+        # ── State overlays ────────────────────────────────────────
+        if state == "START":
+            draw_overlay(screen, "SNAKE",
+                         "Press SPACE or ENTER to start  |  WASD / Arrows")
+
+        elif state == "PAUSED":
+            draw_overlay(screen, "PAUSED", "Press P or SPACE to resume")
+
+        elif state == "DEAD":
+            draw_overlay(screen,
+                         "GAME OVER",
+                         f"Score: {score}   Level: {level}   |   SPACE to restart")
+
+        # ── Tick ──────────────────────────────────────────────────
         pygame.display.flip()
+        clock.tick(current_fps)   # control speed via FPS cap
 
-        # Speed increases with each new level
-        clock.tick(base_speed + level - 1)
-    else:
-        show_game_over()
-        running = False
 
-pygame.quit()
-sys.exit()
+# ── Entry point ──────────────────────────────────────────────────
+if __name__ == "__main__":
+    main()
