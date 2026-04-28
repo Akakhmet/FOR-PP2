@@ -1,5 +1,5 @@
 -- ============================================================
--- PhoneBook Extended Schema — TSIS 1
+-- PhoneBook Schema  (Practice 9 — extension of Practice 7/8)
 -- ============================================================
 
 -- Groups / categories
@@ -9,31 +9,29 @@ CREATE TABLE IF NOT EXISTS groups (
 );
 
 -- Seed default groups
-INSERT INTO groups (name) VALUES
-    ('Family'), ('Work'), ('Friend'), ('Other')
+INSERT INTO groups (name) VALUES ('Family'), ('Work'), ('Friend'), ('Other')
 ON CONFLICT DO NOTHING;
 
--- Contacts (extended)
+-- Contacts (extend existing table)
 CREATE TABLE IF NOT EXISTS contacts (
     id         SERIAL PRIMARY KEY,
-    first_name VARCHAR(50)  NOT NULL,
-    last_name  VARCHAR(50),
+    name       VARCHAR(100) NOT NULL,
     email      VARCHAR(100),
     birthday   DATE,
-    group_id   INTEGER REFERENCES groups(id) ON DELETE SET NULL,
+    group_id   INTEGER REFERENCES groups(id),
     created_at TIMESTAMP DEFAULT NOW()
 );
 
--- Multiple phones per contact
+-- Add new columns if the table already exists from Practice 7/8
+ALTER TABLE contacts ADD COLUMN IF NOT EXISTS email      VARCHAR(100);
+ALTER TABLE contacts ADD COLUMN IF NOT EXISTS birthday   DATE;
+ALTER TABLE contacts ADD COLUMN IF NOT EXISTS group_id   INTEGER REFERENCES groups(id);
+ALTER TABLE contacts ADD COLUMN IF NOT EXISTS created_at TIMESTAMP DEFAULT NOW();
+
+-- Separate phones table (1-to-many)
 CREATE TABLE IF NOT EXISTS phones (
     id         SERIAL PRIMARY KEY,
     contact_id INTEGER REFERENCES contacts(id) ON DELETE CASCADE,
     phone      VARCHAR(20) NOT NULL,
     type       VARCHAR(10) CHECK (type IN ('home', 'work', 'mobile'))
 );
-
--- Indexes for fast search
-CREATE INDEX IF NOT EXISTS idx_contacts_email    ON contacts(email);
-CREATE INDEX IF NOT EXISTS idx_contacts_group    ON contacts(group_id);
-CREATE INDEX IF NOT EXISTS idx_phones_contact    ON phones(contact_id);
-CREATE INDEX IF NOT EXISTS idx_phones_phone      ON phones(phone);

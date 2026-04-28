@@ -1,9 +1,22 @@
-DB_CONFIG = {
-    "host":     "localhost",
-    "port":     5432,
-    "dbname":   "phonebook",
-    "user":     "postgres",
-    "password": "080302", 
-}
+import os
+from configparser import ConfigParser
 
-PAGE_SIZE = 5   # rows per page in paginated view
+def load_config(filename='database.ini', section='postgresql'):
+    parser = ConfigParser()
+
+    # 🔥 абсолютный путь к файлу
+    base_dir = os.path.dirname(__file__)
+    full_path = os.path.join(base_dir, filename)
+
+    parser.read(full_path)
+
+    print("DEBUG PATH:", full_path)  # можно потом удалить
+
+    config = {}
+    if parser.has_section(section):
+        for param in parser.items(section):
+            config[param[0]] = param[1]
+    else:
+        raise Exception(f'Section {section} not found in the {full_path} file')
+
+    return config
