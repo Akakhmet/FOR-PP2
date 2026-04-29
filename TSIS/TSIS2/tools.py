@@ -1,4 +1,4 @@
-"""tools.py — drawing helpers for paint.py"""
+
 
 import pygame
 from collections import deque

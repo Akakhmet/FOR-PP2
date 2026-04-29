@@ -174,9 +174,7 @@ def draw_preview():
         side = max(abs(cp[0]-sp[0]), abs(cp[1]-sp[1]))
         pygame.draw.rect(tmp, current_color, (*sp, side, side), w)
     elif current_tool == "triangle":
-        # sp - точка, где ты нажал (начало гипотенузы)
-        # cp - точка, где сейчас мышка (конец гипотенузы)
-        # (sp[0], cp[1]) - вершина прямого угла
+
         pts = [sp, (sp[0], cp[1]), cp]
         pygame.draw.polygon(tmp, current_color, pts, w)
 
