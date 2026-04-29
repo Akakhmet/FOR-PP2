@@ -5,8 +5,8 @@ def connect():
     config = load_config()
     try:
         conn = psycopg2.connect(**config)
-        print("✅ Connected to PostgreSQL")
+        print("Connected to PostgreSQL")
         return conn
     except Exception as error:
-        print("❌ DB ERROR:", error)
+        print("DB ERROR:", error)
         return None

@@ -170,7 +170,7 @@ def _upsert_contact(conn, name, email, birthday, group_name):
             if row:
                 group_id = row[0]
 
-        # контакт бар ма тексеру
+        #проверка есть ли контакт
         cur.execute("SELECT id FROM contacts WHERE name = %s", (name,))
         existing = cur.fetchone()
 

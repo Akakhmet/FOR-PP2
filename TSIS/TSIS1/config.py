@@ -4,13 +4,13 @@ from configparser import ConfigParser
 def load_config(filename='database.ini', section='postgresql'):
     parser = ConfigParser()
 
-    # 🔥 абсолютный путь к файлу
+    
     base_dir = os.path.dirname(__file__)
     full_path = os.path.join(base_dir, filename)
 
     parser.read(full_path)
 
-    print("DEBUG PATH:", full_path)  # можно потом удалить
+    print("DEBUG PATH:", full_path)  
 
     config = {}
     if parser.has_section(section):

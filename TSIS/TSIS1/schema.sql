@@ -1,6 +1,6 @@
--- ============================================================
--- PhoneBook Schema  (Practice 9 — extension of Practice 7/8)
--- ============================================================
+
+-- PhoneBook Schema 
+
 
 -- Groups / categories
 CREATE TABLE IF NOT EXISTS groups (

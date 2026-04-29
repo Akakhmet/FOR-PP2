@@ -40,7 +40,7 @@ BEGIN
 END;
 $$;
 
--- 3. Extended search: name, email, and all phone numbers
+-- 3. extended search: name, email, and all phone numbers
 DROP FUNCTION IF EXISTS search_contacts(TEXT);
 CREATE OR REPLACE FUNCTION search_contacts(p_query TEXT)
 RETURNS TABLE (
