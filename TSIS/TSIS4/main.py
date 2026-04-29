@@ -300,7 +300,7 @@ def main():
 
     settings = load_settings()
 
-    # Username entry (once per launch)
+    # Username entry
     username  = username_screen(screen)
     if not username:
         pygame.quit()

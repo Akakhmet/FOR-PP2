@@ -5,7 +5,7 @@ import random
 from collections import deque
 from config import *
 
-# ── Directions ────────────────────────────────────────────────────
+# ── Directions
 UP    = ( 0, -1)
 DOWN  = ( 0,  1)
 LEFT  = (-1,  0)
@@ -243,7 +243,7 @@ def run_game(screen, settings, player_id, personal_best):
         if powerup and powerup.expired():
             powerup = None
 
-        # ── Snake step ────────────────────────────────────────────
+        # ── Snake step
         if now - last_step_ms >= step_interval():
             last_step_ms = now
             direction    = next_dir

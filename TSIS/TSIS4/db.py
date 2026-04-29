@@ -67,7 +67,7 @@ def get_leaderboard():
 
 
 def get_personal_best(player_id):
-    """Return player's all-time best score (0 if none)."""
+    """Return player's all-time best score."""
     with _conn() as conn:
         with conn.cursor() as cur:
             cur.execute(

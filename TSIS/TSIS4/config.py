@@ -28,7 +28,7 @@ FOODS_PER_LEVEL = 5    # food eaten to level up
 OBS_START_LEVEL = 3    # obstacles appear from this level
 OBS_PER_LEVEL   = 3    # new obstacles per level
 
-#Colors
+#colors
 BLACK      = (0,   0,   0)
 WHITE      = (255, 255, 255)
 GRAY       = (120, 120, 120)
