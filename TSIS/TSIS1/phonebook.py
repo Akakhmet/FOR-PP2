@@ -299,6 +299,76 @@ def add_contact():
         print(f"[OK] Contact added: {name}")
     finally:
         conn.close()
+def import_json():
+    path = input("JSON file path [contacts.json]: ").strip() or "contacts.json"
+    if not os.path.exists(path):
+        print(f"File not found: {path}")
+        return
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+
+    conn = connect()
+    try:
+        for contact in data:
+            name     = contact.get("name", "").strip()
+            email    = contact.get("email")
+            birthday = contact.get("birthday")
+            group    = contact.get("group")
+            phones   = contact.get("phones", [])
+
+            if not name:
+                continue
+
+            with conn:  # savepoint per contact
+                cid, existed = _upsert_contact(conn, name, email, birthday, group)
+
+                if existed:
+                    choice = input(f'"{name}" already exists. [s]kip / [o]verwrite? ').strip().lower()
+                    if choice != "o":
+                        print(f"  Skipped {name}")
+                        continue
+                    # Overwrite: delete old phones, update fields
+                    with conn.cursor() as cur:
+                        cur.execute("DELETE FROM phones WHERE contact_id = %s", (cid,))
+                        cur.execute(
+                            "UPDATE contacts SET email=%s, birthday=%s WHERE id=%s",
+                            (email, birthday, cid),
+                        )
+
+                with conn.cursor() as cur:
+                    for ph in phones:
+                        cur.execute(
+                            "INSERT INTO phones (contact_id, phone, type) VALUES (%s,%s,%s)",
+                            (cid, ph.get("phone"), ph.get("type", "mobile")),
+                        )
+                print(f"  {'Updated' if existed else 'Imported'}: {name}")
+    finally:
+        conn.close()
+    print("[OK] JSON import done.")
+    
+def export_json():
+    rows = get_full_contacts()
+    data = []
+    for cid, name, email, bday, grp, phones in rows:
+        phone_list = []
+        if phones:
+            for part in phones.split(", "):
+                # part looks like "+7700... (mobile)"
+                num = part.split(" (")[0]
+                typ = part.split("(")[-1].rstrip(")") if "(" in part else "mobile"
+                phone_list.append({"phone": num, "type": typ})
+        data.append({
+            "name": name,
+            "email": email,
+            "birthday": str(bday) if bday else None,
+            "group": grp,
+            "phones": phone_list,
+        })
+    path = input("Output file path [contacts.json]: ").strip() or "contacts.json"
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    print(f"[OK] {len(data)} contacts exported to {path}")
+
 
 
 
@@ -316,6 +386,8 @@ MENU = """
   9. Add contact  
   10. Delete contact
   11. Update contact
+  12. Import from JSON         
+  13. Export to JSON 
   0. Exit                     
 
 """
@@ -332,6 +404,8 @@ ACTIONS = {
     "9": add_contact,
     "10": delete_contact,
     "11": update_contact,
+    "13": export_json,
+    "12": import_json,
 }
 
 

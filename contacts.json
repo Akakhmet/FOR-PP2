@@ -1,0 +1,142 @@
+[
+  {
+    "name": "askelad",
+    "email": "askelad@gmail.com",
+    "birthday": "1985-02-05",
+    "group": "Work",
+    "phones": [
+      {
+        "phone": "77012223344",
+        "type": "work"
+      },
+      {
+        "phone": "77012223344",
+        "type": "work"
+      },
+      {
+        "phone": "77012223344",
+        "type": "work"
+      }
+    ]
+  },
+  {
+    "name": "kakashi",
+    "email": "kakashi@gmail.com",
+    "birthday": "1985-02-21",
+    "group": "sensei",
+    "phones": [
+      {
+        "phone": "77784054156",
+        "type": "work"
+      },
+      {
+        "phone": "77784054156",
+        "type": "work"
+      },
+      {
+        "phone": "77784054156",
+        "type": "work"
+      }
+    ]
+  },
+  {
+    "name": "luffy",
+    "email": "luffy@gmail.com",
+    "birthday": "1997-02-05",
+    "group": "Work",
+    "phones": [
+      {
+        "phone": "77714045206",
+        "type": "work"
+      },
+      {
+        "phone": "77714045206",
+        "type": "work"
+      },
+      {
+        "phone": "77714045206",
+        "type": "work"
+      }
+    ]
+  },
+  {
+    "name": "naruto",
+    "email": "naruto@gmail.com",
+    "birthday": "2002-10-08",
+    "group": "Friend",
+    "phones": [
+      {
+        "phone": "77001112233",
+        "type": "mobile"
+      },
+      {
+        "phone": "77001112233",
+        "type": "mobile"
+      },
+      {
+        "phone": "77001112233",
+        "type": "mobile"
+      }
+    ]
+  },
+  {
+    "name": "Ronaldo",
+    "email": "ronaldo@gmail.com",
+    "birthday": "1985-02-05",
+    "group": "Work",
+    "phones": [
+      {
+        "phone": "77012223344",
+        "type": "work"
+      },
+      {
+        "phone": "77012223344",
+        "type": "work"
+      },
+      {
+        "phone": "77012223344",
+        "type": "work"
+      }
+    ]
+  },
+  {
+    "name": "sasuke",
+    "email": "sasuke@gmail.com",
+    "birthday": "2002-10-08",
+    "group": "Friend",
+    "phones": [
+      {
+        "phone": "77001112233",
+        "type": "mobile"
+      },
+      {
+        "phone": "77001112233",
+        "type": "mobile"
+      },
+      {
+        "phone": "77001112233",
+        "type": "mobile"
+      }
+    ]
+  },
+  {
+    "name": "thorfin",
+    "email": "thorfin@work.com",
+    "birthday": "1987-06-24",
+    "group": "Friend",
+    "phones": [
+      {
+        "phone": "77009998877",
+        "type": "mobile"
+      },
+      {
+        "phone": "77009998877",
+        "type": "work"
+      },
+      {
+        "phone": "77009998877",
+        "type": "work"
+      }
+    ]
+  }
+]
