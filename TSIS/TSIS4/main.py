@@ -25,7 +25,7 @@ COLOR_OPTIONS = [
     ("Teal",   [20, 180, 170]),
 ]
 
-# ── Settings I/O ─────────────────────────────────────────────────
+#Settings I/O
 
 def load_settings():
     if os.path.exists(SETTINGS_FILE):
@@ -39,7 +39,7 @@ def save_settings(s):
         json.dump(s, f, indent=2)
 
 
-# ── UI helpers ────────────────────────────────────────────────────
+#UI helpers
 
 _fonts = {}
 def _f(size, bold=False):
@@ -73,7 +73,7 @@ class Button:
                 and self.rect.collidepoint(event.pos))
 
 
-# ── Screens ───────────────────────────────────────────────────────
+#Screens
 
 def username_screen(screen):
     """Returns typed username string or None on ESC."""
@@ -284,7 +284,7 @@ def settings_screen(screen, settings):
         clock.tick(60)
 
 
-# ── Entry point ───────────────────────────────────────────────────
+#Entry point
 
 def main():
     pygame.init()

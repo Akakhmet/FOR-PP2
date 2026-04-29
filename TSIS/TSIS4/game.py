@@ -20,7 +20,7 @@ KEY_DIR = {
 }
 
 
-# ── Entity classes ────────────────────────────────────────────────
+#Entity classes
 
 class Food:
     # (color, points, lifetime_ms or None)
@@ -61,7 +61,7 @@ class PowerUp:
         return pygame.time.get_ticks() - self._born > 8000
 
 
-# ── Helpers ───────────────────────────────────────────────────────
+#Helpers
 
 def _all_cells():
     return {(c, r) for c in range(COLS) for r in range(ROWS)}
@@ -125,7 +125,7 @@ def _place_obstacles(snake, current_obs, count):
     return obs
 
 
-# ── Draw helpers ──────────────────────────────────────────────────
+#Draw helpers
 
 def _cell_rect(col, row):
     return pygame.Rect(col * CELL, HUD_H + row * CELL, CELL, CELL)
@@ -134,9 +134,6 @@ def _cell_rect(col, row):
 def _draw_cell(surface, color, col, row, shrink=2):
     r = _cell_rect(col, row).inflate(-shrink, -shrink)
     pygame.draw.rect(surface, color, r, border_radius=3)
-
-
-# ── Main game function ────────────────────────────────────────────
 
 def run_game(screen, settings, player_id, personal_best):
     """
@@ -158,7 +155,7 @@ def run_game(screen, settings, player_id, personal_best):
         except Exception:
             pass
 
-    # ── Initial state ─────────────────────────────────────────────
+    #Initial state
     snake   = [(COLS // 2, ROWS // 2),
                (COLS // 2 - 1, ROWS // 2),
                (COLS // 2 - 2, ROWS // 2)]
@@ -204,7 +201,7 @@ def run_game(screen, settings, player_id, personal_best):
     while running:
         now = pygame.time.get_ticks()
 
-        # ── Events ───────────────────────────────────────────────
+        #Events
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return None
@@ -215,12 +212,12 @@ def run_game(screen, settings, player_id, personal_best):
                 if nd and nd != OPPOSITE.get(direction):
                     next_dir = nd
 
-        # ── Effect expiry ─────────────────────────────────────────
+        #Effect expiry
         if effect and now > effect["end_ms"]:
             if effect["kind"] != "shield":
                 effect = None
 
-        # ── Spawn poison periodically ─────────────────────────────
+        #Spawn poison periodically
         if poison is None and now - last_psn_ms > 12000:
             last_psn_ms = now
             occ = _occupied_set(snake, foods, None, powerup, obstacles)
@@ -228,7 +225,7 @@ def run_game(screen, settings, player_id, personal_best):
             if pos:
                 poison = PoisonFood(pos)
 
-        # ── Spawn power-up periodically ───────────────────────────
+        #Spawn power-up periodically
         if powerup is None and now - last_pu_ms > 10000:
             last_pu_ms = now
             occ = _occupied_set(snake, foods, poison, None, obstacles)
@@ -236,7 +233,7 @@ def run_game(screen, settings, player_id, personal_best):
             if pos:
                 powerup = PowerUp(pos)
 
-        # ── Expire food and power-up ──────────────────────────────
+        #Expire food and power-up
         foods   = [f for f in foods if not f.expired()]
         if not foods:
             occ = _occupied_set(snake, [], poison, powerup, obstacles)
@@ -333,7 +330,7 @@ def run_game(screen, settings, player_id, personal_best):
                 if level >= OBS_START_LEVEL:
                     obstacles = _place_obstacles(snake, obstacles, OBS_PER_LEVEL)
 
-        # ── Draw ─────────────────────────────────────────────────
+        #Draw
         screen.fill(BG)
 
         # HUD background

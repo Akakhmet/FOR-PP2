@@ -10,7 +10,7 @@ BASE   = os.path.dirname(os.path.abspath(__file__))
 LANES  = [110, 200, 290]   # x-centres of the 3 lanes
 FINISH = 2000               # distance to finish (metres)
 
-# ── Colors (HUD / power-ups only — road/cars use images) ─────────
+#Colors HUD / power-ups only — road/cars use images
 BLACK  = (0,   0,   0)
 WHITE  = (255, 255, 255)
 GRAY   = (120, 120, 120)
@@ -28,7 +28,7 @@ DIFF_CFG = {
     "hard":   {"base_speed": 7, "enemy_ms":  750, "obs_ms": 1500, "pu_ms": 7000},
 }
 
-# ── Image loader (same pattern as Practice 11) ────────────────────
+#Image loader (same pattern as Practice 11)
 
 def _load(filename):
     """Load image from same directory as this file."""
@@ -38,7 +38,7 @@ def _load_scaled(filename, size):
     img = _load(filename)
     return pygame.transform.scale(img, size)
 
-# ── Sprites ───────────────────────────────────────────────────────
+#Sprites
 
 class Player(pygame.sprite.Sprite):
     def __init__(self):
@@ -147,7 +147,7 @@ class NitroStrip(pygame.sprite.Sprite):
             self.kill()
 
 
-# ── Main game function ────────────────────────────────────────────
+#Main game function
 
 def run_game(screen, settings, username):
     """Run one round. Returns {"score", "distance", "coins"} or None on ESC."""
@@ -213,7 +213,7 @@ def run_game(screen, settings, username):
         clock.tick(FPS)
         now = pygame.time.get_ticks()
 
-        # ── Events ───────────────────────────────────────────────
+        #Events
         for event in pygame.event.get():
             if event.type == QUIT:
                 _clear_timers([EV_ENEMY, EV_COIN, EV_OBS, EV_PU, EV_NITRO])
@@ -232,12 +232,12 @@ def run_game(screen, settings, username):
             if event.type == EV_NITRO:
                 _spawn(NitroStrip, nitros, cur_speed())
 
-        # ── Nitro expiry ──────────────────────────────────────────
+        #Nitro expiry
         if active_pu == "nitro" and now > pu_end_ms:
             active_pu   = None
             nitro_bonus = 0
 
-        # ── Update ────────────────────────────────────────────────
+        #Update
         player.move()
         enemies.update()
         coins.update()
@@ -303,7 +303,7 @@ def run_game(screen, settings, username):
         if not running:
             break
 
-        # ── Draw ──────────────────────────────────────────────────
+        #Draw
         # Scrolling background (two copies, like Practice 11)
         screen.blit(background, (0, bg_y - SH))
         screen.blit(background, (0, bg_y))
@@ -317,7 +317,7 @@ def run_game(screen, settings, username):
         if player.shield:
             pygame.draw.ellipse(screen, CYAN, player.rect.inflate(14, 14), 3)
 
-        # ── HUD (same style as Practice 11) ───────────────────────
+        #HUD
         score_text = font_small.render(f"Score: {score}",          True, BLACK)
         coin_text  = font_small.render(f"Coins: {coins_col}",      True, GOLD)
         speed_text = font_small.render(f"Speed: {cur_speed():.1f}",True, BLACK)
@@ -343,7 +343,7 @@ def run_game(screen, settings, username):
 
         pygame.display.update()
 
-    # ── Crash sequence (same as Practice 11) ──────────────────────
+    #Crash sequence
     if crash_snd:
         crash_snd.play()
 

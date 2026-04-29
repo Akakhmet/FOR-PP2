@@ -1,6 +1,4 @@
-# config.py — shared constants for TSIS 4 Snake
-
-# ── Database ──────────────────────────────────────────────────────
+#Database
 DB_CONFIG = {
     "host":     "localhost",
     "port":     5432,
@@ -9,28 +7,28 @@ DB_CONFIG = {
     "password": "080302",
 }
 
-# ── Grid & Window ─────────────────────────────────────────────────
+#Grid & Window 
 CELL = 20          # pixels per grid cell
 COLS = 24          # grid columns
 ROWS = 24          # grid rows
-HUD_H = 70         # HUD strip at the top (pixels)
+HUD_H = 70         # HUD strip at the top 
 
-SW = COLS * CELL            # 480
-SH = ROWS * CELL + HUD_H   # 550
+SW = COLS * CELL            
+SH = ROWS * CELL + HUD_H   
 
-# ── Snake speed (steps per second) ────────────────────────────────
+#Snake speed steps per second
 SPEED_BASE  = 7    # steps/s at level 1
 SPEED_STEP  = 1    # added per level
 SPEED_MAX   = 16
 SPEED_BOOST = 5    # extra steps/s for nitro
 SPEED_SLOW  = -3   # reduction for slow-mo (floored at 3)
 
-# ── Level progression ─────────────────────────────────────────────
+#Level progression
 FOODS_PER_LEVEL = 5    # food eaten to level up
 OBS_START_LEVEL = 3    # obstacles appear from this level
 OBS_PER_LEVEL   = 3    # new obstacles per level
 
-# ── Colors ────────────────────────────────────────────────────────
+#Colors
 BLACK      = (0,   0,   0)
 WHITE      = (255, 255, 255)
 GRAY       = (120, 120, 120)

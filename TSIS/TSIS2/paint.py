@@ -173,8 +173,10 @@ def draw_preview():
     elif current_tool == "square":
         side = max(abs(cp[0]-sp[0]), abs(cp[1]-sp[1]))
         pygame.draw.rect(tmp, current_color, (*sp, side, side), w)
-
     elif current_tool == "triangle":
+        # sp - точка, где ты нажал (начало гипотенузы)
+        # cp - точка, где сейчас мышка (конец гипотенузы)
+        # (sp[0], cp[1]) - вершина прямого угла
         pts = [sp, (sp[0], cp[1]), cp]
         pygame.draw.polygon(tmp, current_color, pts, w)
 
@@ -191,7 +193,7 @@ def draw_preview():
 
     screen.blit(tmp, (0, TOOLBAR_H))
 
-# ── Commit shape to canvas ────────────────────────────────────────
+# ── Commit shape to canvas
 def commit_shape():
     if not (start_pos and curr_pos):
         return
@@ -228,14 +230,14 @@ def commit_shape():
         pts = [(cx, cy-dy), (cx-dx, cy), (cx, cy+dy), (cx+dx, cy)]
         pygame.draw.polygon(canvas, current_color, pts, w)
 
-# ── Save canvas ───────────────────────────────────────────────────
+# ── Save canvas
 def save_canvas():
     ts   = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     name = f"canvas_{ts}.png"
     pygame.image.save(canvas, name)
     print(f"[OK] Saved: {name}")
 
-# ── Main loop ─────────────────────────────────────────────────────
+# ── Main loop
 def main():
     global drawing, start_pos, curr_pos, last_pos
     global current_tool, current_color, brush_size
@@ -245,11 +247,11 @@ def main():
     while running:
         for event in pygame.event.get():
 
-            # ── Quit ──────────────────────────────────────────────
+            # ── Quit
             if event.type == pygame.QUIT:
                 running = False
 
-            # ── Keyboard ──────────────────────────────────────────
+            #Keyboard
             elif event.type == pygame.KEYDOWN:
 
                 # Text tool input
@@ -288,7 +290,7 @@ def main():
                 elif event.key == pygame.K_3:
                     brush_size = 10
 
-            # ── Mouse down ────────────────────────────────────────
+            #Mouse down
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 pos = event.pos
 
@@ -326,13 +328,13 @@ def main():
                         curr_pos  = cp
                         last_pos  = cp
 
-            # ── Mouse up ──────────────────────────────────────────
+            #Mouse up
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                 if drawing:
                     commit_shape()
                     drawing = False
 
-            # ── Mouse motion ──────────────────────────────────────
+            #Mouse motion
             elif event.type == pygame.MOUSEMOTION and drawing:
                 curr_pos = to_canvas(event.pos)
 
@@ -343,7 +345,7 @@ def main():
 
                 last_pos = curr_pos
 
-        # ── Render ────────────────────────────────────────────────
+        #Render
         draw_toolbar()
         draw_preview()
         pygame.display.flip()
